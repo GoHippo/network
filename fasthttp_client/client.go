@@ -3,11 +3,11 @@ package fasthttp_client
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/valyala/fasthttp"
 	"log/slog"
+	"network/proxy/proxy_jar"
 	"sync"
 	"time"
-	
-	"github.com/valyala/fasthttp"
 )
 
 // NewFasthttpClient Создает клиент fasthttp
