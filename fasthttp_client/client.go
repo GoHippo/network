@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/valyala/fasthttp"
 	"log/slog"
-	"network/proxy/proxy_jar"
+	"github.com/GoHippo/network/proxy/proxy_jar"
 	"sync"
 	"time"
 )

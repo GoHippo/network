@@ -2,8 +2,8 @@ package proxy_service
 
 import (
 	"fmt"
+	"github.com/GoHippo/network/proxy/proxy_jar"
 	"log/slog"
-	"network/proxy/proxy_jar"
 )
 
 type ProxyService struct {

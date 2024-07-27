@@ -2,13 +2,15 @@ package proxy_service
 
 import (
 	"fmt"
-	"github.com/GoHippo/pretty_logger/sl"
+	"github.com/GoHippo/network/proxy/proxy_jar"
+	"github.com/GoHippo/slogpretty/sl"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/valyala/fasthttp"
+	
+	dial_service "github.com/GoHippo/network/proxy/dial"
 	"log/slog"
 	"net/url"
-	dial_service "network/proxy/dial"
-	"network/proxy/proxy_jar"
+	
 	"slices"
 	"strings"
 	"time"

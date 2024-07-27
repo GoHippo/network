@@ -2,9 +2,9 @@ package fasthttp_client
 
 import (
 	"fmt"
-	"github.com/GoHippo/pretty_logger/sl"
-	"network/proxy/checker_proxy"
-	"network/proxy/proxy_jar"
+	"github.com/GoHippo/network/proxy/checker_proxy"
+	"github.com/GoHippo/network/proxy/proxy_jar"
+	"github.com/GoHippo/slogpretty/sl"
 	"strings"
 	"sync"
 	"time"

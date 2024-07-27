@@ -1,9 +1,9 @@
-module network
+module github.com/GoHippo/network
 
 go 1.22.4
 
 require (
-	github.com/GoHippo/pretty_logger v0.1.0
+	github.com/GoHippo/slogpretty v0.0.0-20240727214331-b1ea1b1315d3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/emersion/go-imap/v2 v2.0.0-beta.3
 	github.com/valyala/fasthttp v1.55.0

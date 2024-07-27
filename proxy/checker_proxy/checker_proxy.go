@@ -1,9 +1,10 @@
 package checker_proxy
 
 import (
+	"github.com/GoHippo/network/proxy/proxy_jar"
+	"github.com/GoHippo/network/proxy/proxy_service"
 	"log/slog"
-	"network/proxy/proxy_jar"
-	"network/proxy/proxy_service"
+	
 	"sync"
 	"time"
 )

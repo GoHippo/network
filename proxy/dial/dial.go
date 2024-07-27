@@ -3,12 +3,13 @@ package dial
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/GoHippo/network/proxy/proxy_jar"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
 	"h12.io/socks"
 	"net"
-	"network/proxy/proxy_jar"
+	
 	"strings"
 	"time"
 )

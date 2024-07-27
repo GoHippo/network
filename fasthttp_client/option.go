@@ -1,6 +1,6 @@
 package fasthttp_client
 
-import "network/fasthttp_client/cookies_jar"
+import "github.com/GoHippo/network/fasthttp_client/cookies_jar"
 
 type errNetworkCounter interface {
 	AddCountNetworkErr(err error)

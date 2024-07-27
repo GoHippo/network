@@ -3,11 +3,12 @@ package imap_client
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/GoHippo/network/proxy/proxy_jar"
+	"github.com/GoHippo/network/proxy/proxy_service"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"log/slog"
 	"net"
-	"network/proxy/proxy_jar"
-	"network/proxy/proxy_service"
+	
 	"strings"
 	"time"
 )
