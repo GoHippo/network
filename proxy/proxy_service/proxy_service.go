@@ -6,6 +6,7 @@ import (
 	"github.com/GoHippo/slogpretty/sl"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/valyala/fasthttp"
+	"os"
 	
 	dial_service "github.com/GoHippo/network/proxy/dial"
 	"log/slog"
@@ -180,6 +181,34 @@ func (ps *ProxyService) AddProxyFromArr(arr []string) (count int, err error) {
 	
 	count = len(arrProxyConfig)
 	return count, nil
+}
+
+func (ps *ProxyService) AddProxtFromFile(path string, scheme string) (count int, err error) {
+	file, err := os.ReadFile(path)
+	if err != nil {
+		ps.log.Error("Error reading file proxy", sl.Err(err))
+		return 0, err
+	}
+	
+	var arr []string
+	for _, line := range strings.Split(string(file), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		
+		sp := strings.Split(line, ":")
+		
+		switch len(sp) {
+		case 2:
+			arr = append(arr, fmt.Sprintf("%v://%v:%v", scheme, sp[0], sp[1]))
+		case 4:
+			arr = append(arr, fmt.Sprintf("%v://%v:%v@%v:%v", scheme, sp[2], sp[3], sp[0], sp[1]))
+		default:
+			return 0, fmt.Errorf("Format proxy err. (ip:port or ip:port:user:pass)")
+		}
+	}
+	return ps.AddProxyFromArr(arr)
 }
 
 func (ps *ProxyService) ConvertStrToProxyConfig(arr []string) (arrConfig []proxy_jar.ProxyConfig, err error) {
