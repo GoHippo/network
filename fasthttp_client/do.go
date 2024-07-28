@@ -113,7 +113,7 @@ func (c *FasthttpClient) do(req *fasthttp.Request, resp *fasthttp.Response, opti
 				option.ErrCounter.AddCountNetworkErr(err)
 			}
 			
-			if c.ProxyUse {
+			if c.ProxyUse && option.DoCountReconnecting > 0 {
 				return c.do_with_new_proxy(req, resp, option)
 			}
 			return fmt.Errorf("[%v] %v", option.ID, err.Error())
