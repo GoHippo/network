@@ -98,7 +98,7 @@ func (c *FasthttpClient) do(req *fasthttp.Request, resp *fasthttp.Response, opti
 			return fmt.Errorf("[%v] %v", option.ID, err.Error())
 		}
 		
-		if option.DoCountReconnecting != 0 {
+		if option.DoCountReconnecting > 0 {
 			if option.ErrCounter != nil {
 				option.ErrCounter.AddCountNetworkErr(err)
 			}

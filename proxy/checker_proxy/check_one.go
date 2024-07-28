@@ -27,7 +27,7 @@ func CheckProxyConfig(config proxy_jar.ProxyConfig, dialTimeout time.Duration) (
 // CheckTreeDomains Проверяет клиент с прокси по трем доменам, если во всех ошибка, то вернет ошибку.
 func CheckTreeDomains(client *fasthttp.Client, dialTimeout time.Duration) error {
 	// https://jsonip.com
-	// https://api.seeip.org/jsonip
+	// https://api.seeip.org/jsonip {"ip":"85.192.63.92"}
 	// https://icanhazip.com
 	
 	if s, _, err := client.GetTimeout(nil, "https://b.cdnst.net/javascript/ads/ad.js", dialTimeout); err == nil || s == 200 || s == 302 {
