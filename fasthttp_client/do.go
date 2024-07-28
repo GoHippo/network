@@ -159,7 +159,7 @@ var (
 func (c *FasthttpClient) checkErrConn(err error) bool {
 	for _, e := range ArrErrInternet {
 		if strings.Contains(err.Error(), e) {
-			c.Log.Error("[CheckErrInternet] " + err.Error())
+			c.Log.Error("[CheckErrInternet][%v]%v", err.Error())
 			
 			if c.ProxyUse {
 				c.ProxyService.DeleteProxy(c.proxyConfig)
