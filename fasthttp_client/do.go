@@ -15,7 +15,7 @@ import (
 type FasthttpClient struct {
 	*fasthttp.Client
 	mutex       *sync.Mutex
-	proxyConfig config.ProxyConfig
+	ProxyConfig config.ProxyConfig
 	FastHttpClientOptions
 }
 
@@ -126,10 +126,10 @@ func (c *FasthttpClient) do(req *fasthttp.Request, resp *fasthttp.Response, opti
 }
 
 func (c *FasthttpClient) do_with_new_proxy(req *fasthttp.Request, resp *fasthttp.Response, option DoOption) error {
-	// pc := c.proxyConfig
+	// pc := c.ProxyConfig
 	// defer c.proxyService.FreeProxy(pc)
 
-	c.ProxyService.FreeProxy(c.proxyConfig)
+	c.ProxyService.FreeProxy(c.ProxyConfig)
 	option.DoCountReconnecting -= 1
 
 	cli, errCli := NewFasthttpClient(c.FastHttpClientOptions)
@@ -162,7 +162,7 @@ func (c *FasthttpClient) checkErrConn(err error) bool {
 			c.Log.Error("[CheckErrInternet][%v]%v", err.Error())
 
 			if c.ProxyUse {
-				c.ProxyService.DeleteProxy(c.proxyConfig)
+				c.ProxyService.DeleteProxy(c.ProxyConfig)
 			}
 
 			return true
@@ -174,7 +174,7 @@ func (c *FasthttpClient) checkErrConn(err error) bool {
 
 		err = checker_proxy.CheckTreeDomains(c.Client, c.FastHttpClientOptions.DialTimeout)
 		if err != nil {
-			c.ProxyService.DeleteProxy(c.proxyConfig)
+			c.ProxyService.DeleteProxy(c.ProxyConfig)
 		}
 		return err != nil
 

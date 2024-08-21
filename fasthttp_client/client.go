@@ -64,7 +64,7 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 			return client, nil
 		}
 		client.Dial = dial
-		client.proxyConfig = proxyConfig
+		client.ProxyConfig = proxyConfig
 		client.ProxyUse = true
 	}
 
@@ -73,7 +73,7 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 
 func (fc *FasthttpClient) Close() {
 	if fc.ProxyUse {
-		fc.ProxyService.FreeProxy(fc.proxyConfig)
+		fc.ProxyService.FreeProxy(fc.ProxyConfig)
 		fc.ProxyUse = false
 	}
 	fc.Client.CloseIdleConnections()
