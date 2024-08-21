@@ -29,7 +29,7 @@ type ProxyService interface {
 	DeleteProxy(p config.ProxyConfig)
 	FreeProxy(p config.ProxyConfig)
 	GetCountProxy() int
-	GetCountProxyImap() int
+	//GetCountProxyImap() int
 	GetFasthttpProxy(dialTimeout time.Duration) (fasthttp.DialFunc, config.ProxyConfig, error)
 }
 
