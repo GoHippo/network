@@ -1,9 +1,12 @@
 module github.com/GoHippo/network
 
-go 1.22.4
+go 1.22.5
+
+toolchain go1.22.6
 
 require (
-	github.com/GoHippo/slogpretty v0.0.0-20240727214331-b1ea1b1315d3
+	github.com/GoHippo/pterm_tools v1.2.0
+	github.com/GoHippo/slogpretty v1.1.2
 	github.com/davecgh/go-spew v1.1.1
 	github.com/emersion/go-imap/v2 v2.0.0-beta.3
 	github.com/valyala/fasthttp v1.55.0

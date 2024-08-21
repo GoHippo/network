@@ -1,13 +1,13 @@
 package network_pool
 
 import (
-	"SteamRecovery/pkg/console_bar"
 	"encoding/json"
 	"fmt"
 	"github.com/GoHippo/network/fasthttp_client"
 	"github.com/GoHippo/network/fasthttp_client/cookies_jar"
 	"github.com/GoHippo/network/proxy/proxy_service"
 	"github.com/GoHippo/network/proxy/proxy_service/config"
+	"github.com/GoHippo/pterm_tools/pterm_pb"
 	"github.com/GoHippo/slogpretty/sl"
 	"github.com/GoHippo/slogpretty/slogpretty"
 	"github.com/valyala/fasthttp"
@@ -94,9 +94,9 @@ func TestNewNetworkPool(t *testing.T) {
 		}})
 	}
 
-	bar := console_bar.NewConsoleBar("TestNewNetworkPool")
+	bar := pterm_pb.NewPB(len(rt.arrRes), "TestNewNetworkPool")
 
-	ps := proxy_service.NewProxyService(log)
+	ps := proxy_service.NewProxyService(log, 5)
 	ps.AddProxy(config.ProxyConfig{
 		Addr:          "https://127.0.0.1:6666",
 		Scheme:        "https",
@@ -119,7 +119,7 @@ func TestNewNetworkPool(t *testing.T) {
 		Log:            log,
 		FuncSignalDone: bar.Add,
 	})
-	bar.Close("end")
+	bar.Close()
 
 	fmt.Println(rt.arrResult)
 

@@ -46,12 +46,12 @@ func CheckTreeDomains(client *fasthttp.Client, dialTimeout time.Duration) error 
 }
 
 // CheckImapConfig Проверяет proxy_jar.ProxyConfig на валид imap.
-func CheckImapConfig(config config.ProxyConfig, dialTimeout time.Duration) error {
-	if config.Scheme == config.O_HTTPS {
+func CheckImapConfig(cf config.ProxyConfig, dialTimeout time.Duration) error {
+	if cf.Scheme == config.O_HTTPS {
 		return fmt.Errorf("HTTPS не поддерживает IMAP")
 	}
 
-	cli, err := dial.CreateImapDial(config, dialTimeout, "outlook.office365.com:993")
+	cli, err := dial.CreateImapDial(cf, dialTimeout, "outlook.office365.com:993")
 	if err != nil {
 		return err
 	}
