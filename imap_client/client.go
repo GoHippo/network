@@ -3,12 +3,12 @@ package imap_client
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/GoHippo/network/proxy/proxy_jar"
 	"github.com/GoHippo/network/proxy/proxy_service"
+	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"log/slog"
 	"net"
-	
+
 	"strings"
 	"time"
 )
@@ -17,7 +17,7 @@ type ImapClient struct {
 	log *slog.Logger
 	*imapclient.Client
 	login bool
-	proxy_jar.ProxyConfig
+	config.ProxyConfig
 	Proxy               bool
 	count_reconnections int
 	proxyService        *proxy_service.ProxyService
@@ -26,31 +26,31 @@ type ImapClient struct {
 // NewImapClient Получает imapclient c прокси или без.
 func NewImapClient(addr string, dialTimeout time.Duration, block_without_proxy bool, count_reconnections int, ps *proxy_service.ProxyService) (*ImapClient, error) {
 	ic := &ImapClient{count_reconnections: count_reconnections}
-	
+
 	cli, proxyConfig, err := ps.GetProxyImap(addr, dialTimeout)
 	if err != nil {
-		
+
 		if err == proxy_service.ERR_JAR_PROXY_NULL && block_without_proxy {
 			return nil, fmt.Errorf("Ошибка. Прокси закончились. Стоит запрет на использование сети без прокси.")
 		}
-		
+
 		if err == proxy_service.ERR_JAR_PROXY_NULL {
-			
+
 			return getImapclientNotProxy(addr, dialTimeout, count_reconnections, ps)
 		}
-		
+
 		if CheckErrNetwork(ic.log, err) {
 			ps.DeleteProxy(proxyConfig)
 			return NewImapClient(addr, dialTimeout, block_without_proxy, count_reconnections, ps)
 		}
-		
+
 		return nil, err
 	}
-	
+
 	ic.Client = cli
 	ic.ProxyConfig = proxyConfig
 	ic.Proxy = true
-	
+
 	return ic, err
 }
 
@@ -60,18 +60,18 @@ func getImapclientNotProxy(addrMail string, dialTimeout time.Duration, count_rec
 		Timeout: dialTimeout,
 		// KeepAlive: 0,
 	}
-	
+
 	conn, err := tls.DialWithDialer(dialer, "tcp", addrMail, &tls.Config{
 		NextProtos:         []string{"imap"},
 		InsecureSkipVerify: true,
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	cli := imapclient.New(conn, nil)
-	
+
 	return &ImapClient{Client: cli, count_reconnections: count_reconnections, Proxy: false, proxyService: ps}, nil
 }
 
@@ -105,19 +105,19 @@ func CheckErrNetwork(log *slog.Logger, err error) bool {
 // доработать закрытие клиента
 func (ic *ImapClient) Close() {
 	defer recoverLogout(ic.log)
-	
+
 	if ic.login {
 		ic.Client.Logout()
 	}
 	ic.Client.Close()
-	
+
 	if ic.Proxy {
 		ic.proxyService.FreeProxy(ic.ProxyConfig)
 		ic.Proxy = false
 	}
 }
 
-func recoverLogout(log *slog.Logger, ) {
+func recoverLogout(log *slog.Logger) {
 	err := recover()
 	if err != nil {
 		log.Error(fmt.Sprintf("При закрытии клиента ошибка LOGOUT Err:%v", err))

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/GoHippo/network/fasthttp_client"
 	"github.com/GoHippo/network/fasthttp_client/cookies_jar"
-	"github.com/GoHippo/network/proxy/proxy_jar"
 	"github.com/GoHippo/network/proxy/proxy_service"
+	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"github.com/GoHippo/slogpretty/sl"
 	"github.com/GoHippo/slogpretty/slogpretty"
 	"github.com/valyala/fasthttp"
@@ -32,29 +32,29 @@ func (rt *ResTest) Check(client *fasthttp_client.FasthttpClient, resource any) {
 	// https://api.seeip.org/jsonip {"ip":"85.192.63.92"}
 	var req = fasthttp.AcquireRequest()
 	var resp = fasthttp.AcquireResponse()
-	
+
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
-	
+
 	res := resource.(Resourse)
-	
+
 	req.SetRequestURI("https://api.seeip.org/jsonip")
-	
+
 	_, err := client.Do(req, resp, res.DoOpt)
 	if err != nil {
 		rt.Log.Error("Error do request", sl.Err(err))
 		return
 	}
-	
+
 	data := struct {
 		Ip string `json:"ip"`
 	}{}
-	
+
 	if err := json.Unmarshal(resp.Body(), &data); err != nil {
 		rt.Log.Error("Error unmarshal json", sl.Err(err))
 		return
 	}
-	
+
 	if data.Ip != "" {
 		rt.WriteResult(data.Ip)
 	}
@@ -78,12 +78,12 @@ func (rt *ResTest) GetResource() any {
 
 func TestNewNetworkPool(t *testing.T) {
 	log := slogpretty.SetupPrettySlog(slog.LevelInfo)
-	
+
 	rt := &ResTest{
 		lock: sync.Mutex{},
 		Log:  log,
 	}
-	
+
 	for i := range 1 {
 		rt.arrRes = append(rt.arrRes, Resourse{DoOpt: fasthttp_client.DoOption{
 			ID:                  fmt.Sprintf("%v", i),
@@ -93,17 +93,17 @@ func TestNewNetworkPool(t *testing.T) {
 			ErrCounter:          nil,
 		}})
 	}
-	
+
 	bar := console_bar.NewConsoleBar("TestNewNetworkPool")
-	
+
 	ps := proxy_service.NewProxyService(log)
-	ps.AddProxy(proxy_jar.ProxyConfig{
+	ps.AddProxy(config.ProxyConfig{
 		Addr:          "https://127.0.0.1:6666",
 		Scheme:        "https",
 		Host:          "127.0.0.1:6666",
 		IsImapSupport: false,
 	})
-	
+
 	NewNetworkPool(NetworkPoolOptions{
 		ActionBox: ActionBox(rt),
 		CliOptions: fasthttp_client.FastHttpClientOptions{
@@ -120,7 +120,7 @@ func TestNewNetworkPool(t *testing.T) {
 		FuncSignalDone: bar.Add,
 	})
 	bar.Close("end")
-	
+
 	fmt.Println(rt.arrResult)
-	
+
 }

@@ -1,16 +1,16 @@
 package checker_proxy
 
 import (
-	"github.com/GoHippo/network/proxy/proxy_jar"
 	"github.com/GoHippo/network/proxy/proxy_service"
+	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"log/slog"
-	
+
 	"sync"
 	"time"
 )
 
 type loaderProxyTest struct {
-	proxy proxy_jar.ProxyConfig
+	proxy config.ProxyConfig
 }
 
 type proxyTestService struct {
@@ -33,7 +33,7 @@ type BarProxyCheck struct {
 }
 
 // Проверяет указынные ProxyConfig и добавляет в ProxyService и потом в файл, там проверяет на повторы
-func newProxyListCheck(threads int, dialTimeout time.Duration, listProxy []proxy_jar.ProxyConfig, isBar bool, bar *BarProxyCheck, ps *proxy_service.ProxyService) (good, bad int) {
+func newProxyListCheck(threads int, dialTimeout time.Duration, listProxy []config.ProxyConfig, isBar bool, bar *BarProxyCheck, ps *proxy_service.ProxyService) (good, bad int) {
 	var barAdd func()
 	if isBar {
 		barAdd = func() {
@@ -42,7 +42,7 @@ func newProxyListCheck(threads int, dialTimeout time.Duration, listProxy []proxy
 		bar.Start()
 		defer bar.End()
 	}
-	
+
 	pts := &proxyTestService{
 		proxyService: ps,
 		threads:      threads,
@@ -52,46 +52,46 @@ func newProxyListCheck(threads int, dialTimeout time.Duration, listProxy []proxy
 		loader:       make(chan loaderProxyTest, len(listProxy)),
 		signalExit:   make(chan struct{}),
 	}
-	
+
 	go pts.goPool(dialTimeout)
 	defer pts.close()
-	
+
 	for _, p := range listProxy {
 		pts.wg.Add(1)
 		pts.loader <- loaderProxyTest{p}
 	}
-	
+
 	pts.wg.Wait()
 	return pts.good, pts.bad
 }
 
 func (pts *proxyTestService) goPool(dialTimeout time.Duration) {
-	
+
 	for _ = range pts.threads {
 		go func() {
 			for {
 				select {
 				case load := <-pts.loader:
 					p := load.proxy
-					
-					if work, isImap := CheckProxyConfig(p, dialTimeout); work {
-						p.IsImapSupport = isImap
+
+					if work := CheckProxyConfig(p, dialTimeout); work {
+						//p.IsImapSupport = isImap
 						pts.proxyService.AddProxy(p)
 						pts.good++
 					} else {
 						pts.proxyService.DeleteProxy(p)
 						pts.bad++
 					}
-					
+
 					pts.wg.Done()
-					
+
 					if pts.isBar {
 						pts.barAdd()
 					}
-				
+
 				case <-pts.signalExit:
 					return
-				
+
 				default:
 					time.Sleep(time.Millisecond)
 				}

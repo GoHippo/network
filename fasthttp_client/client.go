@@ -3,9 +3,9 @@ package fasthttp_client
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"github.com/valyala/fasthttp"
 	"log/slog"
-	"github.com/GoHippo/network/proxy/proxy_jar"
 	"sync"
 	"time"
 )
@@ -26,24 +26,26 @@ type FastHttpClientOptions struct {
 }
 
 type ProxyService interface {
-	DeleteProxy(p proxy_jar.ProxyConfig)
-	FreeProxy(p proxy_jar.ProxyConfig)
+	DeleteProxy(p config.ProxyConfig)
+	FreeProxy(p config.ProxyConfig)
 	GetCountProxy() int
 	GetCountProxyImap() int
-	GetFasthttpProxy(dialTimeout time.Duration) (fasthttp.DialFunc, proxy_jar.ProxyConfig, error)
+	GetFasthttpProxy(dialTimeout time.Duration) (fasthttp.DialFunc, config.ProxyConfig, error)
 }
 
 func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
-	
+
 	if err := options.CheckNew(); err != nil {
 		return nil, err
 	}
-	
+
 	client := &FasthttpClient{
 		Client: &fasthttp.Client{
 			// max размер буффера для пакета запроса
 			ReadBufferSize:  15 * 1024,
 			MaxConnsPerHost: options.MaxConnsPerHost,
+			ReadTimeout:     time.Second * 30,
+			WriteTimeout:    time.Second * 30,
 			// MaxConnWaitTimeout:  5 * time.Second,
 			// MaxIdleConnDuration: 5 * time.Second,
 			MaxConnWaitTimeout: 200 * time.Second,
@@ -52,7 +54,7 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 		mutex:                 &sync.Mutex{},
 		FastHttpClientOptions: options,
 	}
-	
+
 	if client.ProxyUse && client.ProxyService.GetCountProxy() != 0 {
 		dial, proxyConfig, err := options.ProxyService.GetFasthttpProxy(options.DialTimeout)
 		if err != nil {
@@ -65,7 +67,7 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 		client.proxyConfig = proxyConfig
 		client.ProxyUse = true
 	}
-	
+
 	return client, nil
 }
 
@@ -79,19 +81,19 @@ func (fc *FasthttpClient) Close() {
 
 func (fco *FastHttpClientOptions) CheckNew() error {
 	var op = "fasthttp_client/client/NewFasthttpClient"
-	
+
 	if fco.DialTimeout == 0 {
 		fco.DialTimeout = time.Second * 60
 	}
-	
+
 	if fco.Log == nil {
 		return fmt.Errorf("%v Logger is nil.", op)
 	}
-	
+
 	if fco.ProxyService == nil {
 		return fmt.Errorf("%v Proxy Service is nil.", op)
 	}
-	
+
 	return nil
-	
+
 }
