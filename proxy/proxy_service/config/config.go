@@ -11,6 +11,7 @@ type ProxyConfig struct {
 type ProxyScheme string
 
 const (
+	O_HTTP    ProxyScheme = "http"
 	O_HTTPS   ProxyScheme = "https"
 	O_SOCKS4  ProxyScheme = "socks4"
 	O_SOCKS4a ProxyScheme = "socks4a"

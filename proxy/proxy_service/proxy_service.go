@@ -28,6 +28,7 @@ func NewProxyService(log *slog.Logger, rate_limit int) *ProxyService {
 		loader:     make(chan poolloader),
 		rate_limit: rate_limit,
 		jar:        make(map[config.ProxyConfig]int),
+		jarRetries: make(map[config.ProxyConfig]int),
 	}
 	ps.goPool()
 
@@ -56,6 +57,11 @@ func (ps *ProxyService) goPool() {
 				load.resp <- poolloader{}
 
 			case GET:
+
+				if len(ps.jar) == 0 && len(ps.jarRetries) != 0 {
+					ps.jar = ps.jarRetries
+					ps.jarRetries = make(map[config.ProxyConfig]int)
+				}
 
 				if len(ps.jar) == 0 {
 					load.resp <- poolloader{cmd: ERR_NULL}
@@ -95,6 +101,12 @@ func (ps *ProxyService) goPool() {
 						r--
 					}
 					ps.jar[load.proxy] = r
+				}
+				load.resp <- poolloader{}
+
+			case FREE_RETRIES:
+				if _, ok := ps.jarRetries[load.proxy]; !ok {
+					ps.jarRetries[load.proxy] = 0
 				}
 				load.resp <- poolloader{}
 
@@ -159,6 +171,16 @@ func (ps *ProxyService) FreeProxy(p config.ProxyConfig) {
 	<-loader.resp
 }
 
+func (ps *ProxyService) FreeRetriesProxy(p config.ProxyConfig) {
+	ps.DeleteProxy(p)
+
+	loader := poolloader{cmd: FREE_RETRIES, proxy: p, resp: make(chan poolloader)}
+	defer close(loader.resp)
+
+	ps.loader <- loader
+	<-loader.resp
+}
+
 func (ps *ProxyService) GetCountProxy() int {
 	loader := poolloader{cmd: COUNT, resp: make(chan poolloader)}
 	defer close(loader.resp)
@@ -188,6 +210,10 @@ func (ps *ProxyService) Close() {
 }*/
 
 // ====================== AddToJar ======================
+
+func (ps *ProxyService) AddProxyUni(arr []string) (count int, err error) {
+	return 0, nil
+}
 
 func (ps *ProxyService) AddProxyFromArr(arr []string) (count int, err error) {
 	arrProxyConfig, err := ps.ConvertStrToProxyConfig(arr)

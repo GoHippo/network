@@ -9,6 +9,7 @@ import (
 type ProxyService struct {
 	log        *slog.Logger
 	jar        map[config.ProxyConfig]int
+	jarRetries map[config.ProxyConfig]int
 	rate_limit int
 	loader     chan poolloader
 }
@@ -32,6 +33,9 @@ const (
 	GET_IMAP cmd_poolloader = "GET_IMAP"
 	FREE     cmd_poolloader = "FREE"
 	COUNT    cmd_poolloader = "COUNT"
+
+	// FREE_RETRIES команда добавит использованный прокси в отдельную банку и высвободит когда остальные закончатся.
+	FREE_RETRIES cmd_poolloader = "FREE_RETRIES"
 )
 
 var ERR_JAR_PROXY_NULL = fmt.Errorf("Ошибка: Proxy list пустой")

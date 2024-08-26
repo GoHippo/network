@@ -1,6 +1,28 @@
 package fasthttp_client
 
-import "github.com/valyala/fasthttp"
+import (
+	"fmt"
+	"github.com/valyala/fasthttp"
+)
+
+func (c *FasthttpClient) SetUrlRequest(url string, req *fasthttp.Request) error {
+	var url_clear []byte
+	for i := 0; i < len([]byte(url)); i++ {
+		b := url[i]
+		if b < ' ' || b == 0x7f {
+			continue
+		}
+		url_clear = append(url_clear, b)
+	}
+
+	req.SetRequestURIBytes(url_clear)
+
+	if len(req.URI().Host()) > 0 {
+		return nil
+	}
+
+	return fmt.Errorf("Failed set URI (%v)", url)
+}
 
 // ====================== Request and Response ======================
 

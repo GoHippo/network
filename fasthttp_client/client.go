@@ -64,6 +64,7 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 			return client, nil
 		}
 		client.Dial = dial
+
 		client.ProxyConfig = proxyConfig
 		client.ProxyUse = true
 	}
