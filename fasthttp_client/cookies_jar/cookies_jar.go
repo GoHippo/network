@@ -35,6 +35,12 @@ func NewJar(log *slog.Logger) *Jar {
 	}
 }
 
+func (j *Jar) Clear() {
+	j.lock.Lock()
+	defer j.lock.Unlock()
+	j.jar = make(map[string][]CookieType)
+}
+
 // Метод добавляет кук в банку или заменит на новый.
 // Ищет, как с "." перед доменом, так и без.
 // Если Value пустой, то удалит кук.
