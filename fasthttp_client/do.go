@@ -65,58 +65,42 @@ func (c *FasthttpClient) do(req *fasthttp.Request, resp *fasthttp.Response, opti
 			return c.do(req, resp, option)
 		}
 
+		if option.ErrCounter != nil {
+			option.ErrCounter.AddCountNetworkErr(err)
+		}
+
 		if err == fasthttp.ErrTimeout {
 
-			if option.ErrCounter != nil {
-				option.ErrCounter.AddCountNetworkErr(err)
+			if option.DoCountReconnecting < 1 {
+				return fmt.Errorf("[%v] %v", option.ID, err.Error())
 			}
 
-			c.Log.Error(fmt.Sprintf("[Network][%v] Timeout к серверу истек, делаю переподключение c новым proxy!", option.ID))
 			option.DoCountReconnecting -= 1
 
 			if c.ProxyUse {
+				c.Log.Error(fmt.Sprintf("[Network][%v] Timeout к серверу истек, делаю переподключение c новым proxy!", option.ID))
 				return c.do_with_new_proxy(req, resp, option)
 			}
 
+			c.Log.Error(fmt.Sprintf("[Network][%v] Timeout к серверу истек, делаю переподключение!", option.ID))
 			return c.do(req, resp, option)
 		}
 
 		if c.checkErrConn(err) {
 
-			if option.ErrCounter != nil {
-				option.ErrCounter.AddCountNetworkErr(err)
+			if c.ProxyUse {
+				c.ProxyService.DeleteProxy(c.ProxyConfig)
+				return c.do_with_new_proxy(req, resp, option)
 			}
 
-			if c.ProxyUse {
-				cli, errCli := NewFasthttpClient(c.FastHttpClientOptions)
-				if errCli != nil {
-					return fmt.Errorf("[%v] Ошибка Do. %v: Ошибка при создании нового клиента. %v", option.ID, err, errCli)
-				}
-				c = cli
-				return c.do(req, resp, option)
-			}
 			return fmt.Errorf("[%v] %v", option.ID, err.Error())
 		}
 
 		if option.DoCountReconnecting > 0 {
-			if option.ErrCounter != nil {
-				option.ErrCounter.AddCountNetworkErr(err)
-			}
-
 			c.Log.Error(fmt.Sprintf("[Network][%v] Попытка переподключения. Ошибка при запросе: err-%v host-%v path:%v", option.ID, err.Error(), string(req.URI().Host()), string(req.URI().Path())))
 			option.DoCountReconnecting -= 1
+
 			return c.do(req, resp, option)
-		}
-
-		if c.checkErrAll(err) {
-			if option.ErrCounter != nil {
-				option.ErrCounter.AddCountNetworkErr(err)
-			}
-
-			if c.ProxyUse && option.DoCountReconnecting > 0 {
-				return c.do_with_new_proxy(req, resp, option)
-			}
-			return fmt.Errorf("[%v] %v", option.ID, err.Error())
 		}
 
 		return fmt.Errorf("[%v] %v", option.ID, err.Error())
@@ -130,7 +114,6 @@ func (c *FasthttpClient) do_with_new_proxy(req *fasthttp.Request, resp *fasthttp
 	// defer c.proxyService.FreeProxy(pc)
 
 	c.ProxyService.FreeProxy(c.ProxyConfig)
-	option.DoCountReconnecting -= 1
 
 	cli, errCli := NewFasthttpClient(c.FastHttpClientOptions)
 	if errCli != nil {
@@ -157,6 +140,7 @@ var (
 // CheckErrInternet ищет ошибку с соеденением. Вернет true, если обнаружит.
 // Удалить BadProxy, если после проверки обнаружет ошибку
 func (c *FasthttpClient) checkErrConn(err error) bool {
+
 	for _, e := range ArrErrInternet {
 		if strings.Contains(err.Error(), e) {
 			c.Log.Error("[CheckErrInternet][%v]%v", err.Error())
@@ -169,39 +153,8 @@ func (c *FasthttpClient) checkErrConn(err error) bool {
 		}
 	}
 
-	switch c.ProxyUse {
-	case true:
-
-		err = checker_proxy.CheckTreeDomains(c.Client, c.FastHttpClientOptions.DialTimeout)
-		if err != nil {
-			c.ProxyService.DeleteProxy(c.ProxyConfig)
-		}
-		return err != nil
-
-	default:
-		return checker_proxy.CheckTreeDomains(c.Client, time.Second*5) != nil
+	if c.ProxyUse {
+		return checker_proxy.CheckTreeDomains(c.Client, c.FastHttpClientOptions.DialTimeout) != nil
 	}
-
-}
-
-// ====================== Error All ======================
-
-var (
-	ArrErrAll = []string{
-		`no such host`,
-		`the server closed connection before returning the first response byte.`,
-	}
-)
-
-// CheckErrInternet ищет ошибку с соеденением. Вернет true, если обнаружит.
-// Удалить BadProxy, если после проверки обнаружет ошибку
-func (c *FasthttpClient) checkErrAll(err error) bool {
-	for _, e := range ArrErrAll {
-		if strings.Contains(err.Error(), e) {
-			c.Log.Error("[CheckErrAll] " + err.Error())
-
-			return true
-		}
-	}
-	return false
+	return checker_proxy.CheckTreeDomains(c.Client, time.Second*5) != nil
 }
