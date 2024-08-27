@@ -1,8 +1,8 @@
 package checker_proxy
 
-import (
+/*import (
+	"github.com/GoHippo/network/proxy/config"
 	"github.com/GoHippo/network/proxy/proxy_service"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"log/slog"
 
 	"sync"
@@ -107,4 +107,4 @@ func (pts *proxyTestService) close() {
 	}
 	close(pts.signalExit)
 	close(pts.loader)
-}
+}*/

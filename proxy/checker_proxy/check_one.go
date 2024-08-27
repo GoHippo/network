@@ -3,8 +3,8 @@ package checker_proxy
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/GoHippo/network/proxy/config"
 	"github.com/GoHippo/network/proxy/dial"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"github.com/valyala/fasthttp"
 
 	"time"

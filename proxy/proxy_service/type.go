@@ -2,7 +2,7 @@ package proxy_service
 
 import (
 	"fmt"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
+	"github.com/GoHippo/network/proxy/config"
 	"log/slog"
 	"time"
 )
@@ -11,7 +11,7 @@ type ProxyService struct {
 	log         *slog.Logger
 	jar         map[config.ProxyConfig]int
 	jarRetries  map[config.ProxyConfig]int
-	rate_limit  int
+	conn_limit  int
 	timeoutDial time.Duration
 	loader      chan poolloader
 }

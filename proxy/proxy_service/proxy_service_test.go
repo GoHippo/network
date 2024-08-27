@@ -2,7 +2,7 @@ package proxy_service
 
 import (
 	"fmt"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
+	"github.com/GoHippo/network/proxy/config"
 	"github.com/davecgh/go-spew/spew"
 	"log/slog"
 	"os"

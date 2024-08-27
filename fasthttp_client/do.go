@@ -3,7 +3,7 @@ package fasthttp_client
 import (
 	"fmt"
 	"github.com/GoHippo/network/proxy/checker_proxy"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
+	"github.com/GoHippo/network/proxy/config"
 	"github.com/GoHippo/slogpretty/sl"
 	"strings"
 	"sync"

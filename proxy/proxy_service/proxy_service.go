@@ -3,7 +3,7 @@ package proxy_service
 import (
 	"fmt"
 	"github.com/GoHippo/network/proxy/checker_proxy"
-	"github.com/GoHippo/network/proxy/proxy_service/config"
+	"github.com/GoHippo/network/proxy/config"
 	"github.com/GoHippo/slogpretty/sl"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/valyala/fasthttp"
@@ -19,16 +19,20 @@ import (
 	"time"
 )
 
-func NewProxyService(log *slog.Logger, rate_limit int, timeout_dial time.Duration) *ProxyService {
-	if rate_limit < 1 {
-		rate_limit = 1
+func NewProxyService(log *slog.Logger, conn_limit int, timeout_dial time.Duration) *ProxyService {
+	if conn_limit < 1 {
+		conn_limit = 1
+	}
+
+	if timeout_dial == 0 {
+		timeout_dial = 15 * time.Second
 	}
 
 	ps := &ProxyService{
 		log:         log,
 		loader:      make(chan poolloader),
 		timeoutDial: timeout_dial,
-		rate_limit:  rate_limit,
+		conn_limit:  conn_limit,
 		jar:         make(map[config.ProxyConfig]int),
 		jarRetries:  make(map[config.ProxyConfig]int),
 	}
@@ -76,7 +80,7 @@ func (ps *ProxyService) goPool() {
 					var rate_limit int
 
 					for p, i := range ps.jar {
-						if ps.rate_limit > i {
+						if ps.conn_limit > i {
 							if i == 0 || i < rate_limit || config.Addr == "" {
 								config = p
 								rate_limit = i
