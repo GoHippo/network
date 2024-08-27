@@ -344,6 +344,11 @@ func (ps *ProxyService) GetFasthttpProxy(dialTimeout time.Duration) (fasthttp.Di
 			continue
 		}
 
+		if !checker_proxy.CheckProxyConfig(load.proxy, ps.timeoutDial) {
+			ps.DeleteProxy(load.proxy)
+			continue
+		}
+
 		dial := dial_service.CreateDialFasthttp(load.proxy, dialTimeout)
 
 		return dial, load.proxy, nil
