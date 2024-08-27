@@ -13,8 +13,10 @@ import (
 // CheckProxyConfig CheckProxy проверяет proxy_jar.ProxyConfig на валид fasthttp и imap.
 func CheckProxyConfig(config config.ProxyConfig, dialTimeout time.Duration) bool {
 	client := &fasthttp.Client{
-		Dial:      dial.CreateDialFasthttp(config, dialTimeout),
-		TLSConfig: &tls.Config{InsecureSkipVerify: true},
+		Dial:         dial.CreateDialFasthttp(config, dialTimeout),
+		TLSConfig:    &tls.Config{InsecureSkipVerify: true},
+		ReadTimeout:  dialTimeout,
+		WriteTimeout: dialTimeout,
 	}
 	defer client.CloseIdleConnections()
 

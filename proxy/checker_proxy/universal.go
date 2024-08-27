@@ -78,6 +78,71 @@ func CheckProxyUni(ipport string, dialTimeout time.Duration) (config.ProxyConfig
 
 }
 
+func CheckProxyIpPort(ipport string, schema config.ProxyScheme, dialTimeout time.Duration) (config.ProxyConfig, bool) {
+
+	ipport = strings.TrimSpace(ipport)
+
+	switch schema {
+	case config.O_SOCKS4:
+		if socks4(ipport, dialTimeout) {
+			addr := fmt.Sprintf("%v://%v", config.O_SOCKS4, ipport)
+			u, _ := url.Parse(addr)
+			return config.ProxyConfig{
+				Addr:          addr,
+				Scheme:        config.O_SOCKS4,
+				Host:          u.Host,
+				IsImapSupport: true,
+			}, true
+		}
+	case config.O_SOCKS4a:
+		if socks4a(ipport, dialTimeout) {
+			addr := fmt.Sprintf("%v://%v", config.O_SOCKS4a, ipport)
+			u, _ := url.Parse(addr)
+			return config.ProxyConfig{
+				Addr:          addr,
+				Scheme:        config.O_SOCKS4a,
+				Host:          u.Host,
+				IsImapSupport: true,
+			}, true
+		}
+	case config.O_SOCKS5:
+		if socks5(ipport, dialTimeout) {
+			addr := fmt.Sprintf("%v://%v", config.O_SOCKS5, ipport)
+			u, _ := url.Parse(addr)
+			return config.ProxyConfig{
+				Addr:          addr,
+				Scheme:        config.O_SOCKS5,
+				Host:          u.Host,
+				IsImapSupport: true,
+			}, true
+		}
+	case config.O_HTTPS:
+		if https(ipport, dialTimeout) {
+			addr := fmt.Sprintf("%v://%v", config.O_HTTPS, ipport)
+			u, _ := url.Parse(addr)
+			return config.ProxyConfig{
+				Addr:          addr,
+				Scheme:        config.O_HTTPS,
+				Host:          u.Host,
+				IsImapSupport: true,
+			}, true
+		}
+	case config.O_HTTP:
+		if httpJust(ipport, dialTimeout) {
+			addr := fmt.Sprintf("%v://%v", config.O_HTTP, ipport)
+			u, _ := url.Parse(addr)
+			return config.ProxyConfig{
+				Addr:          addr,
+				Scheme:        config.O_HTTP,
+				Host:          u.Host,
+				IsImapSupport: true,
+			}, true
+		}
+	}
+
+	return config.ProxyConfig{}, false
+}
+
 func socks4(ipport string, dialTimeout time.Duration) bool {
 	dialSocks := socks.Dial(fmt.Sprintf("socks4://%v?timeout=%vs", ipport, int(dialTimeout.Seconds())))
 	c, err := dialSocks("tcp", ipport)

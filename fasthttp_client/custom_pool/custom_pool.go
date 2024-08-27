@@ -8,7 +8,11 @@ import (
 
 type ActionBox interface {
 	Check(resource any)
+
+	// LenResource блокировка не нужна
 	LenResource() int
+
+	// GetResource блокировка не нужна
 	GetResource() any
 }
 

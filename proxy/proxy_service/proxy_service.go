@@ -2,6 +2,7 @@ package proxy_service
 
 import (
 	"fmt"
+	"github.com/GoHippo/network/proxy/checker_proxy"
 	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"github.com/GoHippo/slogpretty/sl"
 	"github.com/emersion/go-imap/v2/imapclient"
@@ -18,17 +19,18 @@ import (
 	"time"
 )
 
-func NewProxyService(log *slog.Logger, rate_limit int) *ProxyService {
+func NewProxyService(log *slog.Logger, rate_limit int, timeout_dial time.Duration) *ProxyService {
 	if rate_limit < 1 {
 		rate_limit = 1
 	}
 
 	ps := &ProxyService{
-		log:        log,
-		loader:     make(chan poolloader),
-		rate_limit: rate_limit,
-		jar:        make(map[config.ProxyConfig]int),
-		jarRetries: make(map[config.ProxyConfig]int),
+		log:         log,
+		loader:      make(chan poolloader),
+		timeoutDial: timeout_dial,
+		rate_limit:  rate_limit,
+		jar:         make(map[config.ProxyConfig]int),
+		jarRetries:  make(map[config.ProxyConfig]int),
 	}
 	ps.goPool()
 
@@ -154,6 +156,33 @@ func (ps *ProxyService) GetProxy() (config.ProxyConfig, error) {
 
 }
 
+func (ps *ProxyService) GetProxyWithValidate() (config.ProxyConfig, error) {
+	loader := poolloader{cmd: GET, resp: make(chan poolloader)}
+	defer close(loader.resp)
+
+	for {
+		ps.loader <- loader
+		load := <-loader.resp
+
+		if load.cmd == ERR_NULL {
+			return config.ProxyConfig{}, ERR_JAR_PROXY_NULL
+		}
+
+		if load.cmd == WAIT_FREE {
+			time.Sleep(time.Second)
+			continue
+		}
+
+		if !checker_proxy.CheckProxyConfig(load.proxy, ps.timeoutDial) {
+			ps.DeleteProxy(load.proxy)
+			continue
+		}
+
+		return load.proxy, nil
+	}
+
+}
+
 func (ps *ProxyService) DeleteProxy(p config.ProxyConfig) {
 
 	loader := poolloader{cmd: DELETE, proxy: p, resp: make(chan poolloader)}
@@ -209,11 +238,7 @@ func (ps *ProxyService) Close() {
 	return newProxyListCheck(arrProxyConfig, isBar, bar)
 }*/
 
-// ====================== AddToJar ======================
-
-func (ps *ProxyService) AddProxyUni(arr []string) (count int, err error) {
-	return 0, nil
-}
+// ====================== Add ======================
 
 func (ps *ProxyService) AddProxyFromArr(arr []string) (count int, err error) {
 	arrProxyConfig, err := ps.ConvertStrToProxyConfig(arr)

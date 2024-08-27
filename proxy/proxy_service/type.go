@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"github.com/GoHippo/network/proxy/proxy_service/config"
 	"log/slog"
+	"time"
 )
 
 type ProxyService struct {
-	log        *slog.Logger
-	jar        map[config.ProxyConfig]int
-	jarRetries map[config.ProxyConfig]int
-	rate_limit int
-	loader     chan poolloader
+	log         *slog.Logger
+	jar         map[config.ProxyConfig]int
+	jarRetries  map[config.ProxyConfig]int
+	rate_limit  int
+	timeoutDial time.Duration
+	loader      chan poolloader
 }
 
 type poolloader struct {
