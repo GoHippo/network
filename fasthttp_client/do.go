@@ -22,6 +22,10 @@ type FasthttpClient struct {
 func (c *FasthttpClient) Do(req *fasthttp.Request, resp *fasthttp.Response, option DoOption) (body_decode string, err error) {
 	var op = `network.fasthttp.Do`
 
+	if len(req.URI().Host()) == 0 {
+		return "", fmt.Errorf("[Network][%v] Host is nil", option.ID)
+	}
+
 	defer req.Reset()
 
 	if option.Jar != nil {
