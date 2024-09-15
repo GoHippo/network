@@ -39,13 +39,18 @@ func NewFasthttpClient(options FastHttpClientOptions) (*FasthttpClient, error) {
 		return nil, err
 	}
 
+	timeout := options.DialTimeout
+	if timeout < time.Second*30 {
+		timeout = time.Second * 30
+	}
+
 	client := &FasthttpClient{
 		Client: &fasthttp.Client{
 			// max размер буффера для пакета запроса
 			ReadBufferSize:  15 * 1024,
 			MaxConnsPerHost: options.MaxConnsPerHost,
-			ReadTimeout:     time.Second * 30,
-			WriteTimeout:    time.Second * 30,
+			ReadTimeout:     timeout,
+			WriteTimeout:    timeout,
 			// MaxConnWaitTimeout:  5 * time.Second,
 			// MaxIdleConnDuration: 5 * time.Second,
 			MaxConnWaitTimeout: 200 * time.Second,
