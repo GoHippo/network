@@ -1,7 +1,8 @@
 module github.com/GoHippo/network
 
-go 1.22.4
+go 1.22.5
 
+toolchain go1.22.7
 
 require (
 	github.com/GoHippo/pterm_tools v1.2.0

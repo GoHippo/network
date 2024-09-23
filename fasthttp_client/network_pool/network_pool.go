@@ -14,11 +14,12 @@ type ActionBox interface {
 }
 
 type NetworkPoolOptions struct {
-	ActionBox      ActionBox
-	CliOptions     fasthttp_client.FastHttpClientOptions
-	Threads        int
-	Log            *slog.Logger
-	FuncSignalDone func(i int)
+	ActionBox                ActionBox
+	CliOptions               fasthttp_client.FastHttpClientOptions
+	UseStaticClientWithProxy bool
+	Threads                  int
+	Log                      *slog.Logger
+	FuncSignalDone           func(i int)
 }
 
 type loader_resource struct {
