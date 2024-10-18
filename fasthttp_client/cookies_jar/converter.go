@@ -36,6 +36,7 @@ func (j *Jar) ConvToNetscape() []byte {
 }
 
 // Функция конвертурует массив строк формата netscape в массив строк формата cookies_jar.CookieType
+// new
 func (j *Jar) ConvNetscapeToCookieType(arr_str []string) {
 
 	for _, str := range arr_str {
