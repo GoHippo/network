@@ -15,12 +15,12 @@ func (j *Jar) ConvToNetscape() []byte {
 		for _, cookie := range arrCookie {
 			str := cookie.Domain + "	"
 
-			httpOnly := strings.ToUpper(strconv.FormatBool(cookie.HttpOnly))
+			httpOnly := strconv.FormatBool(cookie.HttpOnly)
 			str = str + httpOnly + "	"
 
 			str = str + cookie.Path + "	"
 
-			secure := strings.ToUpper(strconv.FormatBool(cookie.Secure))
+			secure := strconv.FormatBool(cookie.Secure)
 			str = str + secure + "	"
 
 			expire := strconv.Itoa(int(cookie.Expires.Unix()))
@@ -43,11 +43,17 @@ func (j *Jar) ConvNetscapeToCookieType(arr_str []string) {
 		if len(elements) != 7 {
 			continue
 		}
+
+		httpOnly, _ := strconv.ParseBool(strings.ToLower(elements[1]))
+		secure, _ := strconv.ParseBool(strings.ToLower(elements[3]))
+
 		cookie := CookieType{
-			Domain: elements[0],
-			Path:   elements[2],
-			Name:   elements[5],
-			Value:  elements[6],
+			Domain:   elements[0],
+			HttpOnly: httpOnly,
+			Path:     elements[2],
+			Secure:   secure,
+			Name:     elements[5],
+			Value:    elements[6],
 		}
 
 		if len(elements[4]) > 10 {

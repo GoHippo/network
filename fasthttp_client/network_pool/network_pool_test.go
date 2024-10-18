@@ -39,6 +39,7 @@ func (rt *ResTest) Check(client *fasthttp_client.FasthttpClient, resource any) {
 	res := resource.(Resourse)
 
 	req.SetRequestURI("https://api.seeip.org/jsonip")
+	
 
 	_, err := client.Do(req, resp, res.DoOpt)
 	if err != nil {
