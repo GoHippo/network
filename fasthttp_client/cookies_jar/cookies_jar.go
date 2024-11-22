@@ -137,6 +137,7 @@ func (j *Jar) SetCookiesReq(req *fasthttp.Request, onlyCookiesName ...string) {
 	fOnlyCookiesName := func(c CookieType) {
 		for _, name := range onlyCookiesName {
 			if strings.ToLower(name) == strings.ToLower(c.Name) {
+				//add
 				req.Header.Add("Cookie", fmt.Sprintf("%v=%v", c.Name, c.Value))
 			}
 		}
