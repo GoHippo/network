@@ -1,6 +1,7 @@
 package cookies_jar
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
@@ -136,7 +137,7 @@ func (j *Jar) SetCookiesReq(req *fasthttp.Request, onlyCookiesName ...string) {
 	fOnlyCookiesName := func(c CookieType) {
 		for _, name := range onlyCookiesName {
 			if strings.ToLower(name) == strings.ToLower(c.Name) {
-				req.Header.SetCookie(c.Name, c.Value)
+				req.Header.Add("Cookie", fmt.Sprintf("%v=%v", c.Name, c.Value))
 			}
 		}
 	}
@@ -147,7 +148,7 @@ func (j *Jar) SetCookiesReq(req *fasthttp.Request, onlyCookiesName ...string) {
 				if len(onlyCookiesName) != 0 {
 					fOnlyCookiesName(c)
 				} else {
-					req.Header.SetCookie(c.Name, c.Value)
+					req.Header.Add("Cookie", fmt.Sprintf("%v=%v", c.Name, c.Value))
 				}
 			}
 		}
