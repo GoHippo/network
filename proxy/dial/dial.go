@@ -23,7 +23,7 @@ func CreateDialFasthttp(pc config.ProxyConfig, dialTimeout time.Duration) fastht
 		}
 	}
 
-	if pc.Scheme == config.O_HTTPS {
+	if pc.Scheme == config.O_HTTPS || pc.Scheme == config.O_HTTP {
 		addr := strings.TrimLeft(pc.Addr, string(pc.Scheme)+"://")
 		return fasthttpproxy.FasthttpHTTPDialerTimeout(addr, dialTimeout)
 	}

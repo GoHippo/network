@@ -49,7 +49,7 @@ func CheckTreeDomains(client *fasthttp.Client, dialTimeout time.Duration) error 
 
 // CheckImapConfig Проверяет proxy_jar.ProxyConfig на валид imap.
 func CheckImapConfig(cf config.ProxyConfig, dialTimeout time.Duration) error {
-	if cf.Scheme == config.O_HTTPS {
+	if cf.Scheme == config.O_HTTPS || cf.Scheme == config.O_HTTP {
 		return fmt.Errorf("HTTPS не поддерживает IMAP")
 	}
 

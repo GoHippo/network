@@ -303,7 +303,7 @@ func (ps *ProxyService) ConvertStrToProxyConfig(arr []string) (arrConfig []confi
 		}
 
 		sc := config.ProxyScheme(u.Scheme)
-		if sc == config.O_HTTPS || sc == config.O_SOCKS4 || sc == config.O_SOCKS5 || sc == config.O_SOCKS4a {
+		if sc == config.O_HTTP || sc == config.O_HTTPS || sc == config.O_SOCKS4 || sc == config.O_SOCKS5 || sc == config.O_SOCKS4a {
 			proxyConfig := config.ProxyConfig{Scheme: sc, Addr: str, Host: u.Host}
 
 			if sc == config.O_SOCKS4 || sc == config.O_SOCKS5 || sc == config.O_SOCKS4a {
