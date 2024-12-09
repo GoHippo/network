@@ -37,6 +37,10 @@ func (c *FasthttpClient) Do(req *fasthttp.Request, resp *fasthttp.Response, opti
 		option.DoCountReconnecting = c.FastHttpClientOptions.CountReconnections
 	}
 
+	if len(req.Header.Peek("accept-encoding")) == 0 {
+		req.Header.Add("accept-encoding", "gzip, deflate, br")
+	}
+
 	err = c.do(req, resp, option)
 	if err != nil {
 		c.Log.Error(op, sl.Err(err))
